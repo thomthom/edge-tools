@@ -244,7 +244,7 @@ module TT::Plugins::EdgeTools
     def can_close?( result, epsilon )
       # 1. Closest projected open end
       data = result[:vertex_projected]
-      if data[:dist] && data[:dist].all? { |l| l < epsilon }
+      if data[:dist] && data[:dist][0] + data[:dist][1] < epsilon
         return :vertex_projected
       end
       # 2. Closest edge
