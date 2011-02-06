@@ -5,6 +5,9 @@
 #
 # CHANGELOG
 #
+# 2.0.1 - 06.02.2011
+#		 * Fixed namespace issue
+#
 # 2.0.0 - 01.02.2011
 #		 * Initial release.
 #
@@ -26,7 +29,7 @@ module TT
     
   ### CONSTANTS ### --------------------------------------------------------
   
-  VERSION   = '2.0.0'.freeze
+  VERSION   = '2.0.1'.freeze
   PREF_KEY  = 'TT_EdgeTools'.freeze
   TITLE     = 'Edge Tools²'.freeze
   
