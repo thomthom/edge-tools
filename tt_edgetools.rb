@@ -15,12 +15,14 @@
 #
 #-----------------------------------------------------------------------------
 
-require 'TT_Lib2/core.rb'
+require 'sketchup.rb'
 require 'extensions.rb'
 
 #-----------------------------------------------------------------------------
 
-module TT::Plugins::EdgeTools
+module TT
+  module Plugins
+    module EdgeTools
     
   ### CONSTANTS ### --------------------------------------------------------
   
@@ -40,6 +42,8 @@ module TT::Plugins::EdgeTools
   ex.description = 'Suite of tools for manipulating edges.'
   Sketchup.register_extension( ex, true )
   
+    end
+  end
 end # module
 
 
