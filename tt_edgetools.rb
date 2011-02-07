@@ -5,6 +5,9 @@
 #
 # CHANGELOG
 #
+# 2.0.2 - 06.02.2011
+#		 * Fixed namespace reference issue
+#
 # 2.0.1 - 06.02.2011
 #		 * Fixed namespace issue
 #
