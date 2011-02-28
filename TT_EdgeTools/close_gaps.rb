@@ -70,7 +70,7 @@ module TT::Plugins::EdgeTools
     TT.debug "TT::Edges.find_curves took: #{Time.now-t}s"
     
     Sketchup.status_text = 'Finding stray curves...'
-    TT::Sketchup.refresh
+    TT::SketchUp.refresh
     stray_curves = []
     for curve in curves
       vertices = TT::Edges.sort_vertices( curve)
@@ -80,7 +80,7 @@ module TT::Plugins::EdgeTools
     end
     
     Sketchup.status_text = 'Erasing stray curves...'
-    TT::Sketchup.refresh
+    TT::SketchUp.refresh
     TT::Model.start_operation('Erase Stray Curves')
     edges = stray_curves.flatten
     model.active_entities.erase_entities( edges )
@@ -289,7 +289,7 @@ module TT::Plugins::EdgeTools
     def draw(view)
       # Draw background
       # (!)
-      if TT::Sketchup.support?( TT::Sketchup::COLOR_ALPHA )
+      if TT::SketchUp.support?( TT::SketchUp::COLOR_ALPHA )
         pts = [
           [ 80.5,  80.5, 0],
           [520.5,  80.5, 0],
@@ -316,7 +316,7 @@ module TT::Plugins::EdgeTools
         circle = TT::Geom3d.circle( pt2d, Z_AXIS, 10, 24 )
         view.drawing_color = (selected) ? [255,0,0] : [0,0,255]
         view.draw2d( GL_LINE_LOOP, circle )
-        if TT::Sketchup.support?( TT::Sketchup::COLOR_ALPHA )
+        if TT::SketchUp.support?( TT::SketchUp::COLOR_ALPHA )
           view.drawing_color = (selected) ? [255,0,0,32] : [0,0,255,32]
           view.draw2d( GL_POLYGON, circle )
         end
