@@ -5,6 +5,9 @@
 #
 # CHANGELOG
 #
+# 2.0.3 - 28.02.2011
+#		 * Fixed namespace compatibility with TT_Lib 2.5.4
+#
 # 2.0.2 - 06.02.2011
 #		 * Fixed namespace reference issue
 #
