@@ -7,7 +7,7 @@
 
 require 'TT_Lib2/core.rb'
 
-TT::Lib.compatible?('2.5.0', 'Edge Tools²')
+TT::Lib.compatible?('2.5.4', 'Edge Tools²')
 
 #-----------------------------------------------------------------------------
 
