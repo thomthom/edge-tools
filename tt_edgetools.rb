@@ -5,7 +5,8 @@
 #
 # CHANGELOG
 #
-# 2.0.3 - 28.02.2011
+# 2.0.3 - 10.05.2011
+#		 * VCB input now accepts all array format variants.
 #		 * Fixed namespace compatibility with TT_Lib 2.5.4
 #
 # 2.0.2 - 06.02.2011
