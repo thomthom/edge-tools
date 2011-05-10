@@ -49,7 +49,7 @@ module TT
   ex.copyright = 'Thomas Thomassen © 2010—2011'
   ex.creator = 'Thomas Thomassen (thomas@thomthom.net)'
   ex.description = 'Suite of tools for manipulating edges.'
-  ::Sketchup.register_extension( ex, true )
+  Sketchup.register_extension( ex, true )
   
     end
   end
