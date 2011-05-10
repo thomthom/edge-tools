@@ -186,15 +186,12 @@ module TT::Plugins::EdgeTools
         else
           
           begin
-            if result = text.match(/^\*\s*(\d+)/)
-              #puts 'multiply'
-              #p result[1].to_i
-              divide(@last_distance, true, result[1].to_i, :multiply)
-            elsif result = text.match(/^\/\s*(\d+)/)
-              #puts 'divide'
-              #p result[1].to_i
-              divide(@last_distance, true, result[1].to_i, :divide)
-              #Sketchup.vcb_value = length
+            if result = text.match( /^[*x]\s*(\d+)|(\d+)\s*[*x]/ )
+              number = result.to_a.compact[1].to_i
+              divide(@last_distance, true, number, :multiply)
+            elsif result = text.match( /^\/\s*(\d+)|(\d+)\s*\// )
+              number = result.to_a.compact[1].to_i
+              divide(@last_distance, true, number, :divide)
             else
               length = text.to_l
               divide(length, true)
