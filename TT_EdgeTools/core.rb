@@ -26,6 +26,7 @@ module TT::Plugins::EdgeTools
     require 'TT_EdgeTools/close_gaps.rb'
     require 'TT_EdgeTools/simplify.rb'
     require 'TT_EdgeTools/make_colinear.rb'
+    require 'TT_EdgeTools/extend_arc.rb'
 
     # Restore Toolbar
     if @toolbar.get_last_state == TB_VISIBLE
@@ -46,6 +47,7 @@ module TT::Plugins::EdgeTools
     load 'TT_EdgeTools/close_gaps.rb'
     load 'TT_EdgeTools/simplify.rb'
     load 'TT_EdgeTools/make_colinear.rb'
+    load 'TT_EdgeTools/extend_arc.rb'
   end
   
 end # module
