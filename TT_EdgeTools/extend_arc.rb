@@ -86,6 +86,7 @@ module TT::Plugins::EdgeTools
       else
         @ip.pick( view, x, y )
       end
+      view.tooltip = @ip.tooltip
       view.invalidate
     end
     
@@ -105,12 +106,14 @@ module TT::Plugins::EdgeTools
       end
     end
     
+    # (!) Move to TT_Lib?
     def full_angle_between( vector1, vector2, normal )
       angle = vector1.angle_between( vector2 )
       angle = 360.degrees - angle if right_turn?( vector1, vector2, normal )
       angle
     end
     
+    # (!) Move to TT_Lib?
     def right_turn?( vector1, vector2, normal )
       cross1 = vector1 * normal
       cross2 = vector2 * normal
@@ -126,6 +129,7 @@ module TT::Plugins::EdgeTools
       positions = vertices.map { |v| v.position }
       
       if @state && @ip.valid?
+        @ip.draw( view ) if @ip.display?
         center = @arc.center
         cursor = @ip.position
         # Project cursor point to arc plane
@@ -157,7 +161,7 @@ module TT::Plugins::EdgeTools
           points = TT::Geom3d.arc( center, xaxis, normal, radius, start_angle, end_angle, segments )
           view.draw( GL_LINE_STRIP, points )
         else
-        
+          # ...
         end
         # Arc
         view.line_stipple = ''
