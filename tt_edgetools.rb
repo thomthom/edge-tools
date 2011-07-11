@@ -36,7 +36,7 @@ module TT
     
   ### CONSTANTS ### --------------------------------------------------------
   
-  VERSION   = '2.0.3'.freeze
+  VERSION   = '2.0.4'.freeze
   PREF_KEY  = 'TT_EdgeTools'.freeze
   TITLE     = 'Edge Tools²'.freeze
   
