@@ -114,10 +114,12 @@ module TT::Plugins::EdgeTools
     
     t = Time.now
     Sketchup.status_text = 'The hamsters are working very hard, please wait...'
+    TT::Model.start_operation( 'Close All Edge Gaps' )
     cache = model.active_entities.to_a
     result = TT::Edges::Gaps.close_all( entities, epsilon, remove_small_edges, true )
     new_entities = model.active_entities.to_a - cache
     TT::Edges.repair_splits( new_entities, true )
+    model.commit_operation
     puts "#{result} ends fixed in #{Time.now-t}s"
   end
   
