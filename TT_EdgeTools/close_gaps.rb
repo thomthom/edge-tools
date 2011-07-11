@@ -103,7 +103,7 @@ module TT::Plugins::EdgeTools
     remove_small_edges = input[1]=='Yes'
     
     @settings[:gap_epsilon] = epsilon
-    @settings[:gap_remove] = remove_small_edges
+    @settings[:gap_remove] = input[1]
     
     puts "Epsilon: #{epsilon}"
     puts "Erase Small Edges: #{remove_small_edges}"
