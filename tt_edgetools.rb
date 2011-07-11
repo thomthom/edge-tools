@@ -5,6 +5,11 @@
 #
 # CHANGELOG
 #
+# 2.0.4 - 11.07.2011
+#		 * Close All Edge Gaps: Heals closed edges.
+#		 * Close All Edge Gaps: Undoable.
+#		 * Close All Edge Gaps: Inputbox store values correctly.
+#
 # 2.0.3 - 10.05.2011
 #		 * VCB input now accepts all array format variants.
 #		 * Fixed namespace compatibility with TT_Lib 2.5.4
