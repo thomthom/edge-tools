@@ -13,7 +13,7 @@ module TT::Plugins::EdgeTools
   
   unless file_loaded?( __FILE__ )
     cmd_make_colinear = UI::Command.new('Co-linear from start to end') {
-      self.make_colinear(X_AXIS)
+      self.make_colinear(nil)
     }
     cmd_make_colinear.large_icon = 'Images/colinear_24.png'
     cmd_make_colinear.small_icon = 'Images/colinear_16.png'
