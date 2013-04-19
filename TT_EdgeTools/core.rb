@@ -1,26 +1,45 @@
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #
 # Thomas Thomassen
 # thomas[at]thomthom[dot]net
 #
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
-require 'TT_Lib2/core.rb'
+require 'sketchup.rb'
+begin
+  require 'TT_Lib2/core.rb'
+rescue LoadError => e
+  module TT
+    if @lib2_update.nil?
+      url = 'http://www.thomthom.net/software/sketchup/tt_lib2/errors/not-installed'
+      options = {
+        :dialog_title => 'TT_LibÂ² Not Installed',
+        :scrollable => false, :resizable => false, :left => 200, :top => 200
+      }
+      w = UI::WebDialog.new( options )
+      w.set_size( 500, 300 )
+      w.set_url( "#{url}?plugin=#{File.basename( __FILE__ )}" )
+      w.show
+      @lib2_update = w
+    end
+  end
+end
 
-TT::Lib.compatible?('2.5.4', 'Edge Tools²')
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+if defined?( TT::Lib ) && TT::Lib.compatible?( '2.7.0', 'Edge ToolsÂ²' )
 
 module TT::Plugins::EdgeTools
   
   
   ### MODULE VARIABLES ### -------------------------------------------------
   
-  @settings = TT::Settings.new(PREF_KEY)
+  @settings = TT::Settings.new(PLUGIN_ID)
   
   unless file_loaded?( __FILE__ )
-    @menu = TT.menu('Tools').add_submenu('Edge Tools²')
-    @toolbar = UI::Toolbar.new('Edge Tools²')
+    @menu = TT.menu('Tools').add_submenu(PLUGIN_NAME)
+    @toolbar = UI::Toolbar.new(PLUGIN_NAME)
   
     require 'TT_EdgeTools/divider.rb'
     require 'TT_EdgeTools/close_gaps.rb'
@@ -50,7 +69,10 @@ module TT::Plugins::EdgeTools
   
 end # module
 
+end # if TT_Lib
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
 file_loaded( __FILE__ )
-#-----------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
