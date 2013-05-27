@@ -266,6 +266,7 @@ module TT::Plugins::EdgeTools
     end
     
     def onLButtonUp(flags, x, y, view)
+      # TT.debug('EdgeTools - onLButtonUp')
       ph = view.pick_helper
       @circles.each { |v,circle|
         next unless Geom.point_in_polygon_2D( [x,y,0], circle, true )
@@ -273,31 +274,51 @@ module TT::Plugins::EdgeTools
         @result = TT::Edges::Gaps.find( v, @vertices, @edges )
         TT::Model.start_operation('Close Gaps')
         cache = view.model.active_entities.to_a
+        # TT.debug('Closing gaps...')
         closed = TT::Edges::Gaps.close( view.model.active_entities, v, @result, @epsilon )
+        # TT.debug('Closed gaps')
         if closed
+          # TT.debug('Repairing edges...')
           new_entities = view.model.active_entities.to_a - cache
           TT::Edges.repair_splits( new_entities )
+          # TT.debug('Repaired edges.')
+          # TT.debug('Resetting...')
           reset()
+          # TT.debug('Reset')
+          # TT.debug('Updating circles...')
           update_circles(view)
+          # TT.debug('Updated circles.')
         else
           edge = v.edges.first
           if edge.length < @epsilon
             #puts 'Removing small edge'
+            # TT.debug('Erasing edges...')
             edge.erase!
+            # TT.debug('Erased edges.')
+            # TT.debug('Resetting...')
             reset()
+            # TT.debug('Reset')
+            # TT.debug('Updating circles...')
             update_circles(view)
+            # TT.debug('Updated circles.')
           end
         end
+        # TT.debug('commiting...')
         view.model.commit_operation
+        # TT.debug('invalidating...')
         view.invalidate
+        # TT.debug('break...')
         break
       }
+      # TT.debug('EdgeTools - onLButtonUp END')
     end
     
     def draw(view)
+      # TT.debug('EdgeTools - draw')
       # Draw background
       # (!)
       if TT::SketchUp.support?( TT::SketchUp::COLOR_ALPHA )
+        # TT.debug('> Infobox')
         pts = [
           [ 80.5,  80.5, 0],
           [520.5,  80.5, 0],
@@ -313,9 +334,11 @@ module TT::Plugins::EdgeTools
         color.alpha = 0.75
         view.drawing_color = color
         view.draw2d( GL_QUADS, pts )
+        # TT.debug('> Infobox END')
       end
       
       # Draw circles around each end.
+      # TT.debug('> Circles')
       view.line_stipple = ''
       view.line_width = 2
       for v in @vertices
@@ -329,16 +352,25 @@ module TT::Plugins::EdgeTools
           view.draw2d( GL_POLYGON, circle )
         end
       end # for
+      # TT.debug('> Circles END')
+
+      # TT.debug('> Info Text')
       len = (@pick) ? @pick.edges.first.length : '-'
       view.draw_text( [100,100,0], "Open ends: #{@vertices.size}\n\nSmall dots: Out of range\nLong dashes: Within range\nSolid line: Best Solution\n\nEdge Length: #{len}" )
-      
+      # TT.debug('> Info Text END')
+
       if @result
+        # TT.debug('> Preview')
         connection_found = false
         view.line_width = 2
         keys = [:vertex_projected, :edge, :vertex]
         keys.each_with_index { |key, i|
           data = @result[key]
           dist = data[:dist]
+
+          # TT.debug("> > Result: #{@result.inspect}")
+          # TT.debug("> > dist: #{dist.inspect}")
+          # TT.debug("> > data: #{data.inspect}")
           # Colour
           view.drawing_color = COLORS[i]
           # Line type.
@@ -355,24 +387,41 @@ module TT::Plugins::EdgeTools
           else
             view.line_stipple = '.' # Out of range
           end
+
           # Connecting Lines
+          # TT.debug('> > Lines')
           view.line_width = 2
-          if data[:point2]
+          if data[:point] && data[:point2]
+            # TT.debug('> > GL_LINE_STRIP')
             view.draw( GL_LINE_STRIP, @pick.position, data[:point], data[:point2].position )
-          else
+          elsif data[:point]
+            # TT.debug('> > GL_LINES')
             view.draw( GL_LINES, @pick.position, data[:point] )
+          else
+            # TT.debug('> > INVALID DATA!')
           end
+          # TT.debug('> > Lines END')
+
           # Legend Colour ID
+          # TT.debug('> > Legend Color ID')
           view.line_stipple = ''
           view.line_width = 4
           view.draw2d( GL_LINES, [100,250+(30*i),0], [200,250+(30*i),0] )
+          # TT.debug('> > Legend Color ID END')
+
           # Legend and debug data
+          # TT.debug('> > Legend Text')
           distance = ( dist.is_a?(Array) ) ? "#{total_distance} (#{dist.join(' + ')})" : dist
           str = "#{STRINGS[key]}: #{distance}"
           view.draw_text( [100,250+(30*i),0], str )
+          # TT.debug('> > Legend Text END')
+
+          # TT.debug('> Preview END')
         }
       end
-      
+
+      # TT.debug('EdgeTools - draw END')
+      # TT.debug('-----')
     end
     
     def update_circles(view)
