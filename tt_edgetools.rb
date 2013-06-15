@@ -18,7 +18,7 @@ module TT
 
   # Plugin information
   PLUGIN_ID       = 'TT_EdgeTools'.freeze
-  PLUGIN_NAME     = 'Edge Tools²'.freeze
+  PLUGIN_NAME     = 'Edge ToolsÂ²'.freeze
   PLUGIN_VERSION  = '2.1.2'.freeze
 
   # Resource paths
@@ -34,7 +34,7 @@ module TT
     ex = SketchupExtension.new( PLUGIN_NAME, loader )
     ex.description = 'Suite of tools for manipulating edges.'
     ex.version     = PLUGIN_VERSION
-    ex.copyright   = 'Thomas Thomassen © 2010—2013'
+    ex.copyright   = 'Thomas Thomassen Â© 2010â€”2013'
     ex.creator     = 'Thomas Thomassen (thomas@thomthom.net)'
     Sketchup.register_extension( ex, true )
   end
