@@ -1,0 +1,6 @@
+syntax: glob
+*.sublime-*
+archive/*
+docs/*
+media/*
+models/*
