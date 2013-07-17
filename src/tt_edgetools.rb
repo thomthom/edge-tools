@@ -13,22 +13,22 @@ require 'extensions.rb'
 module TT
  module Plugins
   module EdgeTools
-    
+
   ### CONSTANTS ### --------------------------------------------------------
 
   # Plugin information
   PLUGIN_ID       = 'TT_EdgeTools'.freeze
   PLUGIN_NAME     = 'Edge Tools²'.freeze
-  PLUGIN_VERSION  = '2.1.2'.freeze
+  PLUGIN_VERSION  = '2.1.3'.freeze
 
   # Resource paths
   FILENAMESPACE = File.basename( __FILE__, '.rb' )
   PATH_ROOT     = File.dirname( __FILE__ ).freeze
   PATH          = File.join( PATH_ROOT, FILENAMESPACE ).freeze
-  
-  
+
+
   ### EXTENSION ### --------------------------------------------------------
-  
+
   unless file_loaded?( __FILE__ )
     loader = File.join( PATH, 'core.rb' )
     ex = SketchupExtension.new( PLUGIN_NAME, loader )
@@ -38,7 +38,7 @@ module TT
     ex.creator     = 'Thomas Thomassen (thomas@thomthom.net)'
     Sketchup.register_extension( ex, true )
   end
-  
+
   end # module EdgeTools
  end # module Plugins
 end # module TT
