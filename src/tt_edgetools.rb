@@ -19,7 +19,7 @@ module TT
   # Plugin information
   PLUGIN_ID       = 'TT_EdgeTools'.freeze
   PLUGIN_NAME     = 'Edge Tools²'.freeze
-  PLUGIN_VERSION  = '2.1.3'.freeze
+  PLUGIN_VERSION  = '2.2.0'.freeze
 
   # Resource paths
   FILENAMESPACE = File.basename( __FILE__, '.rb' )
