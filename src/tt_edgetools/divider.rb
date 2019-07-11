@@ -8,10 +8,10 @@
 
 module TT::Plugins::EdgeTools
 
-  
+
   ### MENU & TOOLBARS ### --------------------------------------------------
-  
-  unless file_loaded?( __FILE__ )      
+
+  unless file_loaded?( __FILE__ )
     cmd_divide_face = UI::Command.new('Divide Face') {
       self.divide_face
     }
@@ -19,39 +19,45 @@ module TT::Plugins::EdgeTools
     cmd_divide_face.small_icon = 'Images/divide_16.png'
     cmd_divide_face.status_bar_text = 'Split faces into multiple pieces'
     cmd_divide_face.tooltip = 'Split faces into multiple pieces'
-    
+
     # Menu
     @menu.add_item( cmd_divide_face )
-    
+
     # Toolbar
     @toolbar.add_item( cmd_divide_face )
   end # UI
   file_loaded( __FILE__ )
-  
-  
+
+
   ### METHODS ### ----------------------------------------------------------
-  
-  
+
+
   def self.divide_face
     Sketchup.active_model.select_tool( DivideFace.new )
   end
-  
-  
+
+
   # (!) Review and cleanup
   class DivideFace
-    
+
     STATE_NORMAL = 0
     STATE_OFFSET = 1
-    
-    
+
+    module CreateState
+      EDGES = 0
+      CLINES = 1
+    end
+
+
     def initialize
       @last_ip1 = Sketchup::InputPoint.new
       @last_ip2 = Sketchup::InputPoint.new
       @last_edge = nil
       @last_face = nil
-      Sketchup.vcb_label = 'Distance'
+      @create_type = CreateState::EDGES
+      update_ui
     end
-    
+
     def save_cache
       #puts 'save_cache'
       #p [@last_ip1.position, @last_ip2.position, @last_edge, @last_face]
@@ -62,7 +68,7 @@ module TT::Plugins::EdgeTools
       #p [@last_ip1.position, @last_ip2.position, @last_edge, @last_face]
       #puts ' '
     end
-    
+
     def load_cache
       #puts 'load_cache'
       #p [@last_ip1.position, @last_ip2.position, @last_edge, @last_face]
@@ -73,51 +79,59 @@ module TT::Plugins::EdgeTools
       #p [@last_ip1.position, @last_ip2.position, @last_edge, @last_face]
       #puts ' '
     end
-    
-    
+
+
     def activate
       @success = false # Indicates if last operation succeeded
       reset()
     end
-    
-    
+
+
     def reset
       @state = STATE_NORMAL
       @picked_edge = nil
       @picked_face = nil
       @ip1 = Sketchup::InputPoint.new
       @ip2 = Sketchup::InputPoint.new
-      
+
     end
-    
-    
+
+
     def enableVCB?
       return true
     end
-    
-    
+
+
     def onCancel(reason, view)
       reset()
     end
-    
-    
+
+
     def deactivate(view)
       view.invalidate
     end
-    
-    
+
+
     def resume(view)
-      Sketchup.vcb_label = 'Distance'
+      update_ui
     end
-    
-    
+
+    def onKeyUp(key, repeat, flags, view)
+      if key == COPY_MODIFIER_KEY
+        @create_type = create_edges? ? CreateState::CLINES : CreateState::EDGES
+        update_ui
+      end
+      false
+    end
+
     def onMouseMove(flags, x, y, view)
       # (!) Select current face.
       case @state
       when STATE_NORMAL
         ip = view.inputpoint(x, y)
-        if @picked_edge != ip.edge
-          @picked_edge = ip.edge
+        line_source = picked_line_source(ip)
+        if @picked_edge != line_source
+          @picked_edge = line_source
           view.model.selection.clear
           view.model.selection.add(@picked_edge) if @picked_edge
         end
@@ -127,33 +141,33 @@ module TT::Plugins::EdgeTools
         ip = view.inputpoint(x, y)
         if @picked_face != ip.face
           @picked_face = ip.face
-          
+
           #if @picked_face
           #  view.model.selection.clear
           #  view.model.selection.add(@picked_edge, @picked_face)
           #end
         end
         @ip2.copy!(ip)
-        
+
         if @picked_face
           p1 = @ip1.position
           p2 = @ip2.position
           vector = offset_vector(p1, p2, @picked_face.plane)
           #Sketchup.vcb_value = vector.length
-          
+
           # !!
-          line2 = offset_line(@picked_edge.line, vector)
+          line2 = offset_line(picked_line, vector)
           op = p1.project_to_line(line2)
           vector = p1.vector_to( op )
           Sketchup.vcb_value = vector.length
           # !!
         end
-        
+
         view.invalidate
       end
     end
-    
-    
+
+
     def onLButtonDown(flags, x, y, view)
       case @state
       when STATE_NORMAL
@@ -165,17 +179,17 @@ module TT::Plugins::EdgeTools
         divide()
       end
     end
-    
-    
+
+
     def onUserText(text, view)
       if @state == STATE_OFFSET
-        
+
         begin
           length = text.to_l
         rescue ArgumentError
           length = 0.0.to_l
         end
-        
+
         #puts 'STATE_OFFSET'
         divide(length)
         Sketchup.vcb_value = length
@@ -184,7 +198,7 @@ module TT::Plugins::EdgeTools
         if @last_distance.nil?
           Sketchup.vcb_value = ''
         else
-          
+
           begin
             if result = text.match( /^[*x]\s*(\d+)|(\d+)\s*[*x]/ )
               number = result.to_a.compact[1].to_i
@@ -200,13 +214,13 @@ module TT::Plugins::EdgeTools
           rescue ArgumentError
             length = 0.0.to_l
           end
-          
+
           view.invalidate
         end
       end
     end
-    
-    
+
+
     def draw(view)
       # <debug>
       #view.draw_text([500,50,0], @state.inspect)
@@ -217,18 +231,19 @@ module TT::Plugins::EdgeTools
       #view.draw_text([500,150,0], @ip1.position.inspect)
       #view.draw_text([500,170,0], @ip2.position.inspect)
       # </debug>
-      
+
       view.line_stipple = ''
-      view.line_width = 1     
+      view.line_width = 1
       if @picked_face && @picked_edge
         p1 = @ip1.position
         p2 = @ip2.position
         # Split Line
         vector = offset_vector(p1, p2, @picked_face.plane)
-        line = offset_line(@picked_edge.line, vector)
+        line = offset_line(picked_line, vector)
         # Offset direction
         op = p1.project_to_line(line)
-        view.drawing_color = view.model.rendering_options['ForegroundColor']
+        color = create_edges? ? 'ForegroundColor' : 'ConstructionColor'
+        view.drawing_color = view.model.rendering_options[color]
         view.line_stipple = '-'
         view.draw(GL_LINES, [p1, op])
         # Split Edges
@@ -236,9 +251,9 @@ module TT::Plugins::EdgeTools
         unless pts.empty? || TT.odd?(pts.length)
           #view.draw_text([50,50,0], pts.length.to_s)
           #view.draw_text([50,70,0], pts.inspect)
-          view.line_stipple = ''
+          view.line_stipple = create_edges? ? '' : '_'
           view.draw(GL_LINES, pts)
-          
+
           #pts.each_index { |i|
           #  view.draw_text(view.screen_coords(pts[i]), i.inspect)
           #}
@@ -248,8 +263,43 @@ module TT::Plugins::EdgeTools
       @ip1.draw(view) if @ip1.display?
       @ip2.draw(view) if @ip2.display?
     end
-    
-    
+
+    private
+
+    def create_edges?
+      @create_type == CreateState::EDGES
+    end
+
+    def picked_line
+      case @picked_edge
+      when Sketchup::Edge
+        @picked_edge.line
+      when Sketchup::ConstructionLine
+        [@picked_edge.start, @picked_edge.direction]
+      else
+        nil
+      end
+    end
+
+    # @param [Sketchup::InputPoint] ip
+    # @return [Sketchup::Edge, Sketchup::ConstructionLine]
+    def picked_line_source(ip)
+      source = ip.edge
+      return source if source
+      return nil unless ip.respond_to?(:instance_path)
+      leaf = ip.instance_path.leaf
+      leaf.is_a?(Sketchup::ConstructionLine) ? leaf : nil
+    end
+
+    def update_ui
+      if create_edges?
+        Sketchup.status_text = 'Create edges parallel to picked edge. Press Ctrl to create construction lines.'
+      else
+        Sketchup.status_text = 'Create construction lines parallel to picked edge. Press Ctrl to create edges.'
+      end
+      Sketchup.vcb_label = 'Distance'
+    end
+
     def divide(length = nil, correct = false, copies = 1, copy_type = :multiply)
 
       if correct
@@ -266,24 +316,24 @@ module TT::Plugins::EdgeTools
       model = Sketchup.active_model
       p1 = @ip1.position
       p2 = @ip2.position
-      source_line = @picked_edge.line
+      source_line = picked_line
       plane = @picked_face.plane
       vector = offset_vector(p1, p2, plane)
-      
+
       # !!
       line2 = offset_line(source_line, vector)
       op = p1.project_to_line(line2)
       vector = p1.vector_to( op )
       # !!
-      
+
       length = vector.length if length.nil?
-      
+
       if copy_type == :divide
         sub_length = length / copies
       else
         sub_length = length
       end
-      
+
       max_dist = 0
       TT::Model.start_operation('Divide Face')
       edges = []
@@ -302,7 +352,7 @@ module TT::Plugins::EdgeTools
       len = model.active_entities.length
       if edges.empty?
         #@success = false
-        model.abort_operation 
+        model.abort_operation
       else
         edges.each { |pts|
           # Draw edges
@@ -310,10 +360,14 @@ module TT::Plugins::EdgeTools
           until pts.empty?
             ep1 = pts.shift
             ep2 = pts.shift
-            model.active_entities.add_line(ep1, ep2)
+            if create_edges?
+              model.active_entities.add_line(ep1, ep2)
+            else
+              model.active_entities.add_cline(ep1, ep2)
+            end
           end
         }
-        
+
         @last_distance = length
         #@success = true
         save_cache()
@@ -323,8 +377,8 @@ module TT::Plugins::EdgeTools
 
       reset()
     end
-    
-    
+
+
     # p1 and p2 are InputPoint positions. p2 might not be on the plane of the
     # face, so p2 must be projected down to the plane.
     # Then a vector from p1 to the projected point is returned.
@@ -335,13 +389,13 @@ module TT::Plugins::EdgeTools
       v.length = length unless length.nil?
       v
     end
-    
-    
+
+
     def offset_line(line, vector)
       [ line[0].offset(vector), line[1] ]
     end
-    
-    
+
+
     # Returns an array of Point3d objects for each Edge in Face that the Line
     # intersect.
     def split_points(line, face)
@@ -377,8 +431,8 @@ module TT::Plugins::EdgeTools
       end
       pts
     end
-    
+
   end # class DivideFace
 
-  
+
 end # module
