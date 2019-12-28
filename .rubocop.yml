@@ -1,0 +1,40 @@
+require: rubocop-sketchup
+
+inherit_from:
+  # - https://raw.githubusercontent.com/SketchUp/rubocop-sketchup/2f82824807e277aeea6754c5e7397d212dcab07f/sketchup-style.yml
+
+AllCops:
+  DisabledByDefault: true # Only checking SketchUp cops for now.
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  ExtraDetails: true
+  Exclude:
+  - src/*/vendor/**/*
+  SketchUp:
+    SourcePath: src
+    TargetSketchUpVersion: 2014 # Currently older versions work, but not planning on keeping that support.
+    Exclude:
+    - profiling/**/*
+    - skippy/**/*
+    - tests/**/*
+  TargetRubyVersion: 2.3 # Should have been 2.0 but RuboCop dropped support.
+
+SketchupDeprecations:
+  Enabled: true
+
+SketchupPerformance:
+  Enabled: true
+
+SketchupRequirements:
+  Enabled: true
+
+SketchupSuggestions:
+  Enabled: true
+
+SketchupBugs:
+  Enabled: true
+
+# Currently the extenson uses TT_Lib2's TT::Model.start_operation which yield
+# in false positives. Enable once the extension is decoupled with TT_Lib2.
+SketchupPerformance/OperationDisableUI:
+  Enabled: false

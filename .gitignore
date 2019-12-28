@@ -1,0 +1,16 @@
+/.skippy/
+/archive/
+
+# Backup files
+*.skb
+AutoSave_*.skp
+Backup of *.layout
+
+# Bundler
+Gemfile.lock
+
+# RuboCop
+.rubocop-https-*-yml
+
+# RubyMine
+.idea
